@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +94,22 @@ public class PackageController {
         PackageResponseDTO response = packageService.updatePackage(id, pkgDTO);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete package by ID", description = "Delete an existing package (only if not delivered)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Package deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Cannot delete delivered package"),
+            @ApiResponse(responseCode = "404", description = "Package not found")
+    })
+    public ResponseEntity<PackageResponseDTO> deletePackage(
+            @Parameter(description = "ID of the package to delete", example = "1")
+            @PathVariable Long id
+    ) {
+        PackageResponseDTO response = packageService.deletePackage(id);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

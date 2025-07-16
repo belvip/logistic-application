@@ -29,12 +29,21 @@ public class PackageServiceImpl implements PackageService {
     private final PackageMapper pkgMapper;
 
     @Override
+    @Transactional
     public PackageResponseDTO createPackage(PackageRequestDTO request) {
         validatePackageRequest(request);
+
+        if (pkgRepo.existsByDescriptionIgnoreCase(request.description())) {
+            throw new APIException(
+                    "Package with description '" + request.description() + "' already exists"
+            );
+        }
+
         PackageEntity pkgEntity = pkgMapper.toEntity(request);
         PackageEntity savedEntity = pkgRepo.save(pkgEntity);
         return pkgMapper.toResponseDto(savedEntity);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -85,10 +94,6 @@ public class PackageServiceImpl implements PackageService {
         return pkgMapper.toResponseDto(updated);
     }
 
-    @Override
-    public PackageResponseDTO deletePackage(Long id) {
-        return null;
-    }
 
     private static final Map<PackageStatus, Set<PackageStatus>> ALLOWED_TRANSITIONS = Map.of(
             PackageStatus.PENDING, EnumSet.of(PackageStatus.PROCESSING),
@@ -96,6 +101,23 @@ public class PackageServiceImpl implements PackageService {
             PackageStatus.IN_TRANSIT, EnumSet.of(PackageStatus.OUT_FOR_DELIVERY),
             PackageStatus.OUT_FOR_DELIVERY, EnumSet.of(PackageStatus.DELIVERED)
     );
+
+    @Override
+    @Transactional
+    public PackageResponseDTO deletePackage(Long id) {
+        PackageEntity existing = pkgRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Package not found with id: %d", id)
+                ));
+
+        if (existing.getStatus() == PackageStatus.DELIVERED) {
+            throw new APIException("Cannot delete a package that has already been delivered");
+        }
+
+        pkgRepo.delete(existing);
+        return pkgMapper.toResponseDto(existing);
+    }
+
 
     private void validateStatusTransition(PackageStatus current, PackageStatus next) {
         Set<PackageStatus> allowed = ALLOWED_TRANSITIONS.getOrDefault(current, Collections.emptySet());
