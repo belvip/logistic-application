@@ -1,0 +1,2 @@
+- L'utilisation de records simplifie la définition des DTOs tout en gardant le code propre et immuable
+- MapStruct génère automatiquement les implémentations au moment de la compilation
