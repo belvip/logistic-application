@@ -52,7 +52,7 @@ public class PackageController {
             @Parameter(description = "Page number (0-based)", example = "0")
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
 
-            @Parameter(description = "Page size", example = "5")
+            @Parameter(description = "Page size", example = "10")
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
 
             @Parameter(description = "Field to sort by", example = "packageId")
