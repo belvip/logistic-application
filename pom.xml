@@ -11,9 +11,9 @@
 
     <modules>
         <module>package-service</module>
-        <module>location-service</module>
+        <!--<module>location-service</module>
         <module>checkpoint-service</module>
-        <module>tracking-service</module>
+        <module>tracking-service</module>-->
     </modules>
 
     <properties>
